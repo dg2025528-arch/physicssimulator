@@ -234,6 +234,27 @@
       display: block;
     }
 
+    .force-section-title {
+      margin: 12px 0 2px;
+      padding-top: 9px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .force-sub {
+      display: none;
+      margin-top: 2px;
+      padding: 8px 0 2px 10px;
+      border-left: 2px solid var(--border);
+    }
+
+    .force-sub.active {
+      display: block;
+    }
+
     .actions {
       display: grid;
       grid-template-columns: 1.25fr 1fr 1fr;
@@ -633,7 +654,7 @@
 
 
 <script>
-/* v1.4.2.1: keep escape-velocity initial speed controls synchronized with the simulation */
+/* v1.4.3: keep escape-velocity initial speed controls synchronized with the simulation */
 (function () {
   function syncEscapeInitialSpeed() {
     const selectors = [
@@ -682,7 +703,7 @@
 
   <div id="modeModal" class="modal">
     <section class="mode-dialog">
-      <span class="version-badge">v1.4.2</span>
+      <span class="version-badge">v1.4.3</span>
 
 
   <h2>어떤 운동을 시뮬레이션할까요?</h2>
@@ -751,7 +772,7 @@
       <div class="logo">P</div>
       <div>
         <h1>Physics Simulator</h1>
-        <p>인터랙티브 물리 실험실 · v1.4.2</p>
+        <p>인터랙티브 물리 실험실 · v1.4.3</p>
       </div>
     </div>
 
@@ -946,12 +967,95 @@
         </select>
       </label>
 
+      <p class="force-section-title">추가로 고려할 힘</p>
+
+      <label class="check-label">
+        <input id="dragEnabled" type="checkbox">
+        공기저항(항력) 사용
+      </label>
+      <div id="dragSettings" class="force-sub">
+        <label>
+          항력계수 c
+          <input id="dragCoefficient" type="number" value="0.02" min="0" step="0.001">
+        </label>
+        <label>
+          대기 스케일고도 H
+          <div class="input-unit">
+            <input id="atmosphereScaleHeight" type="number" value="20" min="1" step="1">
+            <span>m</span>
+          </div>
+        </label>
+      </div>
+
+      <label class="check-label">
+        <input id="thrustEnabled" type="checkbox">
+        추력 사용
+      </label>
+      <div id="thrustSettings" class="force-sub">
+        <label>
+          추력 크기 F
+          <div class="input-unit">
+            <input id="thrustForce" type="number" value="5" step="0.1">
+            <span>N</span>
+          </div>
+        </label>
+        <label>
+          연소 시간
+          <div class="input-unit">
+            <input id="thrustDuration" type="number" value="3" min="0" step="0.1">
+            <span>s</span>
+          </div>
+        </label>
+      </div>
+
+      <label class="check-label">
+        <input id="thirdBodyEnabled" type="checkbox">
+        제3천체의 중력 사용
+      </label>
+      <div id="thirdBodySettings" class="force-sub">
+        <label>
+          제3천체 중력계수 GM₃
+          <input id="thirdBodyGM" type="number" value="1500" min="0" step="10">
+        </label>
+        <label>
+          제3천체까지 거리 d₃
+          <div class="input-unit">
+            <input id="thirdBodyDistance" type="number" value="150" min="1" step="1">
+            <span>m</span>
+          </div>
+        </label>
+        <label>
+          제3천체 방향각 θ₃
+          <div class="input-unit">
+            <input id="thirdBodyAngle" type="number" value="90" step="1">
+            <span>°</span>
+          </div>
+        </label>
+      </div>
+
+      <label class="check-label">
+        <input id="centrifugalEnabled" type="checkbox">
+        원심력(행성 자전) 사용
+      </label>
+      <div id="centrifugalSettings" class="force-sub">
+        <label>
+          행성 자전각속도 ω
+          <div class="input-unit">
+            <input id="planetAngularVelocity" type="number" value="0.05" min="0" step="0.01">
+            <span>rad·s⁻¹</span>
+          </div>
+        </label>
+      </div>
+
       <div class="escape-help">
-        <strong>탈출 조건</strong><br>
-        E = K + U<br>
+        <strong>탈출 조건 (실시간)</strong><br>
+        E = K + U<sub>중력</sub> + U<sub>제3천체</sub><br>
         E &gt; 0 : 탈출<br>
-        E = 0 : 최소 탈출 조건<br>
-        E &lt; 0 : 다시 행성으로 낙하
+        E ≈ 0 : 최소 탈출 조건<br>
+        E &lt; 0 : 탈출하지 못함<br>
+        <small>항력·추력은 비보존력이므로 E는 매 순간 다시 계산되어,
+        추력이 켜지면 탈출 실패였던 물체도 탈출로 바뀔 수 있고
+        항력이 켜지면 그 반대도 가능합니다.</small>
       </div>
 
     </div>
@@ -1145,14 +1249,24 @@ E = K + U
 
 E > 0  → 탈출
 E = 0  → 최소 탈출
-E < 0  → 탈출 불가`,
+E < 0  → 탈출 불가
+
+추가로 켤 수 있는 힘
+· 항력(공기저항) — 비보존력, E를 감소시킴
+· 추력 — 비보존력, E를 증가시킴
+· 제3천체의 중력 — U에 −GM₃m/r₃ 항 추가
+· 원심력(행성 자전) — 회전좌표계의 가상의 힘`,
 
         explanation:
           "탈출 여부는 역학적 에너지 E = K + U로 판단합니다. " +
           "천체 표면에서 U = −g₀Rm이고, " +
           "탈출 속도는 E = 0이 되는 최소 속력입니다. " +
           "따라서 발사 속력이 탈출 속도보다 작으면 E < 0이 되어 " +
-          "물체는 최고점에 도달한 뒤 다시 천체로 떨어집니다."
+          "물체는 최고점에 도달한 뒤 다시 천체로 떨어집니다. " +
+          "항력·추력·제3천체의 중력·원심력을 켜면 이 힘들도 " +
+          "가속도에 더해지며, 항력·추력처럼 일을 하는 힘은 " +
+          "E 자체를 시간에 따라 바꾸므로 탈출 여부는 초기 조건이 " +
+          "아니라 매 순간의 E로 실시간 판정합니다."
       }
 
     };
@@ -1187,6 +1301,22 @@ E < 0  → 탈출 불가`,
     const planetRadiusInput = get("planetRadius");
 
     const useEscapeSpeedInput = get("useEscapeSpeed");
+
+    const dragEnabledInput = get("dragEnabled");
+    const dragCoefficientInput = get("dragCoefficient");
+    const atmosphereScaleHeightInput = get("atmosphereScaleHeight");
+
+    const thrustEnabledInput = get("thrustEnabled");
+    const thrustForceInput = get("thrustForce");
+    const thrustDurationInput = get("thrustDuration");
+
+    const thirdBodyEnabledInput = get("thirdBodyEnabled");
+    const thirdBodyGMInput = get("thirdBodyGM");
+    const thirdBodyDistanceInput = get("thirdBodyDistance");
+    const thirdBodyAngleInput = get("thirdBodyAngle");
+
+    const centrifugalEnabledInput = get("centrifugalEnabled");
+    const planetAngularVelocityInput = get("planetAngularVelocity");
     const escapeViewSelect = get("escapeView");
 
     const zoomSlider = get("zoomSlider");
@@ -1284,6 +1414,73 @@ E < 0  → 탈출 불가`,
 
 
     /*
+      제3천체의 위치.
+      행성 중심(원점)을 기준으로
+      거리 d₃, 방향각 θ₃에 고정되어 있습니다.
+    */
+    function thirdBodyPosition() {
+
+      const distance =
+        Math.max(
+          numberValue(thirdBodyDistanceInput, 150),
+          1
+        );
+
+      const angle =
+        numberValue(thirdBodyAngleInput, 90) *
+        Math.PI / 180;
+
+      return {
+        x: distance * Math.cos(angle),
+        y: distance * Math.sin(angle)
+      };
+    }
+
+
+    /*
+      제3천체 중력에 의한 퍼텐셜 에너지
+
+      U₃ = -GM₃m / r₃
+
+      체크박스가 꺼져 있으면 0을 반환하여
+      기존(제3천체 없음) 계산과 동일하게 동작합니다.
+    */
+    function computeEscapeThirdBodyPotentialEnergy() {
+
+      if (
+        !thirdBodyEnabledInput ||
+        !thirdBodyEnabledInput.checked
+      ) {
+        return 0;
+      }
+
+      const mass =
+        Math.max(
+          numberValue(massInput, 1),
+          0.01
+        );
+
+      const gm3 =
+        Math.max(
+          numberValue(thirdBodyGMInput, 0),
+          0
+        );
+
+      const body = thirdBodyPosition();
+
+      const distance =
+        Math.max(
+          Math.hypot(x - body.x, y - body.y),
+          0.0001
+        );
+
+      return (
+        -gm3 * mass / distance
+      );
+    }
+
+
+    /*
       탈출 모드의 중력 퍼텐셜 에너지
 
       GM = g₀R²
@@ -1291,6 +1488,12 @@ E < 0  → 탈출 불가`,
       U = -GMm/r
 
         = -g₀R²m/r
+
+      제3천체가 켜져 있으면 그 퍼텐셜 에너지도 더합니다.
+      항력·추력은 비보존력이라 퍼텐셜 에너지에 포함하지
+      않습니다. 대신 그 힘들이 한 일은 이미 속도(운동에너지)에
+      반영되어 있으므로, 아래 E = K + U 계산 시점의 실제
+      속도를 사용하는 것만으로 자동으로 반영됩니다.
     */
     function computeEscapePotentialEnergy() {
 
@@ -1318,12 +1521,16 @@ E < 0  → 탈출 불가`,
           0.0001
         );
 
-      return (
+      const primaryPotentialEnergy =
         -surfaceGravity *
         planetRadius *
         planetRadius *
         mass /
-        distanceFromCenter
+        distanceFromCenter;
+
+      return (
+        primaryPotentialEnergy +
+        computeEscapeThirdBodyPotentialEnergy()
       );
     }
 
@@ -1354,6 +1561,186 @@ E < 0  → 탈출 불가`,
         computeEscapePotentialEnergy();
 
       return kineticEnergy + potentialEnergy;
+    }
+
+
+    /*
+      탈출 모드에서 물체에 작용하는 모든 힘의 합가속도.
+
+      위치(px, py), 속도(vx, vy), 발사 후 경과시간(t)을
+      받아 그 순간의 가속도를 반환합니다. 속도에 의존하는
+      힘(항력, 추력)이 있기 때문에, 위치만으로 결정되는
+      단순 중력과 달리 매개변수로 속도와 시간을 받습니다.
+
+      1) 중력 (행성)        : 항상 적용, 행성 중심 방향
+      2) 항력 (공기저항)     : dragEnabled일 때만, 속도 반대 방향,
+                              고도가 높아질수록 대기 스케일고도 H로
+                              지수적으로 약해짐
+      3) 추력                : thrustEnabled이고 t < 연소시간일 때만,
+                              현재 진행 방향(속도 방향)으로 작용
+      4) 제3천체의 중력       : thirdBodyEnabled일 때만, 제3천체 방향
+      5) 원심력 (행성 자전)   : centrifugalEnabled일 때만, 행성의
+                              자전과 함께 회전하는 좌표계에서 본
+                              가상의 힘. 행성 중심(회전축)에서
+                              바깥 방향으로 ω²·r.
+                              (코리올리 힘은 사용자가 요청한 다섯
+                              힘에 포함되지 않으므로 반영하지 않습니다.)
+    */
+    function computeEscapeAcceleration(px, py, vx, vy, t) {
+
+      const mass =
+        Math.max(
+          numberValue(massInput, 1),
+          0.01
+        );
+
+      let ax = 0;
+      let ay = 0;
+
+      /* 1) 중력 (행성) */
+
+      const surfaceGravity =
+        Math.max(
+          numberValue(planetGravityInput, 9.8),
+          0.0001
+        );
+
+      const planetRadius =
+        Math.max(
+          numberValue(planetRadiusInput, 35),
+          1
+        );
+
+      const distanceFromCenter =
+        Math.max(
+          Math.hypot(px, py),
+          0.01
+        );
+
+      const gravitationalAcceleration =
+        surfaceGravity *
+        planetRadius *
+        planetRadius /
+        (distanceFromCenter * distanceFromCenter);
+
+      ax += -gravitationalAcceleration * (px / distanceFromCenter);
+      ay += -gravitationalAcceleration * (py / distanceFromCenter);
+
+      /* 4) 제3천체의 중력 */
+
+      if (
+        thirdBodyEnabledInput &&
+        thirdBodyEnabledInput.checked
+      ) {
+
+        const gm3 =
+          Math.max(
+            numberValue(thirdBodyGMInput, 0),
+            0
+          );
+
+        const body = thirdBodyPosition();
+
+        const dx = body.x - px;
+        const dy = body.y - py;
+
+        const thirdBodyDistance =
+          Math.max(
+            Math.hypot(dx, dy),
+            0.01
+          );
+
+        const thirdBodyAcceleration =
+          gm3 /
+          (thirdBodyDistance * thirdBodyDistance);
+
+        ax += thirdBodyAcceleration * (dx / thirdBodyDistance);
+        ay += thirdBodyAcceleration * (dy / thirdBodyDistance);
+      }
+
+      const speed = Math.max(Math.hypot(vx, vy), 0.0001);
+
+      /* 2) 항력 (공기저항) */
+
+      if (
+        dragEnabledInput &&
+        dragEnabledInput.checked
+      ) {
+
+        const dragCoefficient =
+          Math.max(
+            numberValue(dragCoefficientInput, 0.02),
+            0
+          );
+
+        const scaleHeight =
+          Math.max(
+            numberValue(atmosphereScaleHeightInput, 20),
+            0.1
+          );
+
+        const altitude =
+          Math.max(
+            distanceFromCenter - planetRadius,
+            0
+          );
+
+        const atmosphereDensity =
+          Math.exp(-altitude / scaleHeight);
+
+        const dragMagnitude =
+          (dragCoefficient / mass) *
+          speed * speed *
+          atmosphereDensity;
+
+        ax += -dragMagnitude * (vx / speed);
+        ay += -dragMagnitude * (vy / speed);
+      }
+
+      /* 3) 추력 */
+
+      if (
+        thrustEnabledInput &&
+        thrustEnabledInput.checked
+      ) {
+
+        const thrustDuration =
+          Math.max(
+            numberValue(thrustDurationInput, 0),
+            0
+          );
+
+        if (t < thrustDuration) {
+
+          const thrustForce =
+            numberValue(thrustForceInput, 0);
+
+          const thrustAcceleration =
+            thrustForce / mass;
+
+          ax += thrustAcceleration * (vx / speed);
+          ay += thrustAcceleration * (vy / speed);
+        }
+      }
+
+      /* 5) 원심력 (행성 자전) */
+
+      if (
+        centrifugalEnabledInput &&
+        centrifugalEnabledInput.checked
+      ) {
+
+        const angularVelocity =
+          Math.max(
+            numberValue(planetAngularVelocityInput, 0),
+            0
+          );
+
+        ax += angularVelocity * angularVelocity * px;
+        ay += angularVelocity * angularVelocity * py;
+      }
+
+      return { x: ax, y: ay };
     }
 
 
@@ -1443,7 +1830,45 @@ E < 0  → 탈출 불가`,
           ? "block"
           : "none";
 
+      updateForceSubPanels();
+
       updateEnergyStatus();
+    }
+
+
+    /*
+      항력/추력/제3천체/원심력 체크박스 상태에 따라
+      해당 세부 입력 영역을 펼치거나 접습니다.
+    */
+    function updateForceSubPanels() {
+
+      get("dragSettings")
+        .classList
+        .toggle(
+          "active",
+          dragEnabledInput.checked
+        );
+
+      get("thrustSettings")
+        .classList
+        .toggle(
+          "active",
+          thrustEnabledInput.checked
+        );
+
+      get("thirdBodySettings")
+        .classList
+        .toggle(
+          "active",
+          thirdBodyEnabledInput.checked
+        );
+
+      get("centrifugalSettings")
+        .classList
+        .toggle(
+          "active",
+          centrifugalEnabledInput.checked
+        );
     }
 
 
@@ -2021,15 +2446,6 @@ E < 0  → 탈출 불가`,
 
       } else if (mode === "escape") {
 
-        const surfaceGravity =
-          Math.max(
-            numberValue(
-              planetGravityInput,
-              9.8
-            ),
-            0.0001
-          );
-
         const planetRadius =
           Math.max(
             numberValue(
@@ -2039,90 +2455,64 @@ E < 0  → 탈출 불가`,
             1
           );
 
-        const distanceFromCenter =
-          Math.max(
-            Math.hypot(x, y),
-            0.01
-          );
-
         /*
-          g(r) = g₀R²/r²
+          Velocity Verlet + 속도 의존 힘(항력·추력)을 위한
+          예측-보정(predictor-corrector) 확장:
+
+          1) 현재 위치·속도·경과시간에서 가속도 a(t)를 구한다.
+          2) a(t)만으로 위치를 한 스텝 전진시킨다. (기존과 동일)
+          3) a(t)로 속도를 1차 예측한다 (오일러 예측값).
+          4) 예측한 속도와 새 위치로 a(t+dt)를 구한다.
+          5) a(t)와 a(t+dt)의 평균으로 실제 속도를 갱신한다.
+
+          항력·추력이 모두 꺼져 있으면 가속도가 속도에
+          의존하지 않으므로, 이 과정은 기존의 순수 중력
+          Velocity Verlet과 완전히 동일하게 동작합니다.
         */
 
-        const gravitationalAcceleration =
-          surfaceGravity *
-          planetRadius *
-          planetRadius /
-          (
-            distanceFromCenter *
-            distanceFromCenter
+        const oldAcceleration =
+          computeEscapeAcceleration(
+            x, y,
+            velocityX, velocityY,
+            elapsed
           );
 
-        /*
-          중력 방향은 항상
-          행성 중심 방향
-        */
-
-        accelerationX =
-          -gravitationalAcceleration *
-          (
-            x /
-            distanceFromCenter
-          );
-
-        accelerationY =
-          -gravitationalAcceleration *
-          (
-            y /
-            distanceFromCenter
-          );
-
-        // Velocity Verlet:
-        // 단순 Euler 적분은 장시간 시뮬레이션에서 에너지를 인위적으로
-        // 증가시켜 탈출 불가(v0 < v_escape) 물체가 탈출하는 문제가 생길 수 있습니다.
-        const oldAccelerationX = accelerationX;
-        const oldAccelerationY = accelerationY;
+        accelerationX = oldAcceleration.x;
+        accelerationY = oldAcceleration.y;
 
         x +=
           velocityX * deltaTime +
-          0.5 * oldAccelerationX * deltaTime * deltaTime;
+          0.5 * oldAcceleration.x * deltaTime * deltaTime;
 
         y +=
           velocityY * deltaTime +
-          0.5 * oldAccelerationY * deltaTime * deltaTime;
+          0.5 * oldAcceleration.y * deltaTime * deltaTime;
 
-        const newDistanceForAcceleration =
-          Math.max(Math.hypot(x, y), 0.01);
+        const predictedVelocityX =
+          velocityX + oldAcceleration.x * deltaTime;
 
-        const newGravitationalAcceleration =
-          surfaceGravity *
-          planetRadius *
-          planetRadius /
-          (
-            newDistanceForAcceleration *
-            newDistanceForAcceleration
+        const predictedVelocityY =
+          velocityY + oldAcceleration.y * deltaTime;
+
+        const newAcceleration =
+          computeEscapeAcceleration(
+            x, y,
+            predictedVelocityX, predictedVelocityY,
+            elapsed + deltaTime
           );
-
-        const newAccelerationX =
-          -newGravitationalAcceleration *
-          (x / newDistanceForAcceleration);
-
-        const newAccelerationY =
-          -newGravitationalAcceleration *
-          (y / newDistanceForAcceleration);
 
         velocityX +=
           0.5 *
-          (oldAccelerationX + newAccelerationX) *
+          (oldAcceleration.x + newAcceleration.x) *
           deltaTime;
 
         velocityY +=
           0.5 *
-          (oldAccelerationY + newAccelerationY) *
+          (oldAcceleration.y + newAcceleration.y) *
           deltaTime;
 
-        accelerationX = newAccelerationX;
-        accelerationY = newAccelerationY;
+        accelerationX = newAcceleration.x;
+        accelerationY = newAcceleration.y;
 
 
         /*
@@ -2349,9 +2739,21 @@ E < 0  → 탈출 불가`,
         ) {
 
           /*
-            탈출 모드에서 E > 0이면
-            화면 밖으로 나간 것이
-            곧 탈출 성공을 의미합니다.
+            탈출 여부는 초기 에너지가 아니라
+            "지금 이 순간"의 역학적 에너지로 판정합니다.
+
+            항력·추력은 비보존력이라 시간에 따라 E를
+            바꾸므로(추력은 E를 올리고, 항력은 E를 낮춤),
+            발사 시점 조건만으로는 최종 결과를 미리 알 수
+            없습니다. 반대로 중력(제3천체 포함)과 원심력만
+            켜져 있다면 E는 거의 보존되므로, 이 실시간 판정은
+            항상 초기 조건 기반 판정과 같은 결과를 줍니다.
+
+            설정값에 따라 아래 세 가지가 모두 나올 수 있습니다.
+              1) E > 0  : 탈출 성공
+              2) E ≈ 0  : 최소 탈출 조건으로 탈출
+              3) E < 0  : 탈출하지 못함 (화면 밖으로 나갔어도
+                          다시 돌아오는 구속 궤도)
           */
 
           if (mode === "escape") {
@@ -2359,12 +2761,9 @@ E < 0  → 탈출 불가`,
             const energy =
               computeEscapeMechanicalEnergy();
 
-            if (
-              escapeInitialEnergy !== null &&
-              escapeInitialEnergy >
-              ENERGY_EPSILON
-            ) {
+            if (energy > ENERGY_EPSILON) {
 
+              // 1) E > 0 : 탈출 성공
               running = false;
 
               playPauseButton.textContent =
@@ -2372,6 +2771,34 @@ E < 0  → 탈출 불가`,
 
               message.textContent =
                 "E > 0 : 물체가 중력을 벗어나 탈출했습니다.";
+
+            } else if (energy < -ENERGY_EPSILON) {
+
+              // 3) E < 0 : 탈출 실패 (구속됨)
+              // 화면 밖으로 나갔더라도 탈출이 아니라
+              // 타원 궤도의 먼 지점을 지나는 중이거나
+              // 곧 행성 쪽으로 되돌아올 것이므로 "탈출"로
+              // 표시하지 않고, 관찰을 위해 일시정지만 합니다.
+              running = false;
+
+              playPauseButton.textContent =
+                "▶ 재생";
+
+              message.textContent =
+                "E < 0 : 물체가 탈출하지 못하고 화면 밖으로 벗어났습니다. 화면을 축소해 다시 확인하세요.";
+
+            } else {
+
+              // 2) E ≈ 0 : 최소 탈출 조건
+              // 속도가 0에 무한히 가까워지며 다시는 돌아오지
+              // 않으므로 탈출로 판정합니다.
+              running = false;
+
+              playPauseButton.textContent =
+                "▶ 재생";
+
+              message.textContent =
+                "E ≈ 0 : 최소 탈출 조건으로 물체가 탈출했습니다.";
             }
 
           } else {
@@ -3329,7 +3756,19 @@ get("closeFormula")
   massInput,
   speedInput,
   angleInput,
-  useEscapeSpeedInput
+  useEscapeSpeedInput,
+  dragEnabledInput,
+  dragCoefficientInput,
+  atmosphereScaleHeightInput,
+  thrustEnabledInput,
+  thrustForceInput,
+  thrustDurationInput,
+  thirdBodyEnabledInput,
+  thirdBodyGMInput,
+  thirdBodyDistanceInput,
+  thirdBodyAngleInput,
+  centrifugalEnabledInput,
+  planetAngularVelocityInput
 ].forEach(
   (element) => {
 
@@ -3356,6 +3795,8 @@ get("closeFormula")
               computeEscapeSpeed()
                 .toFixed(2);
           }
+
+          updateForceSubPanels();
 
           resetSimulation();
         }
