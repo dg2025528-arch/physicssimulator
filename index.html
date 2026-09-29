@@ -364,6 +364,13 @@
       min-width: 37px;
       height: 34px;
       padding: 0 9px;
+      flex: none;
+      white-space: nowrap;
+    }
+
+    .tools {
+      max-width: calc(100% - 20px);
+      overflow-x: auto;
     }
 
     .tools input[type="range"] {
@@ -373,6 +380,7 @@
       accent-color: var(--primary);
       background: transparent;
       border: 0;
+      flex: none;
     }
 
     .overlay {
@@ -638,6 +646,41 @@
         overflow: visible;
         border-top: 1px solid var(--border);
         border-right: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /*
+        시작/재생/초기화 버튼을 설정 목록보다 위로 올려서
+        스크롤 없이 바로 누를 수 있게 하고, 스크롤 중에도
+        화면 위쪽에 붙어 있게 함
+      */
+
+      aside > .panel-title {
+        order: 0;
+      }
+
+      aside > .actions {
+        order: 1;
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        margin: 0 0 9px;
+        padding: 10px 0 9px;
+        background: #091625;
+        border-bottom: 1px solid var(--border);
+      }
+
+      aside > #message {
+        order: 2;
+      }
+
+      aside > #energyStatus {
+        order: 3;
+      }
+
+      aside > .control-card {
+        order: 4;
       }
 
       .overlay {
@@ -646,6 +689,7 @@
         width: calc(50% - 10px);
         max-height: 180px;
         padding: 8px;
+        transition: max-height 0.15s ease;
       }
 
       .formula-card {
@@ -654,6 +698,35 @@
 
       .info-card {
         right: 5px;
+      }
+
+      /*
+        기본적으로 접어 두어 캔버스를 가리지 않게 하고,
+        제목 줄을 탭하면 펼쳐지게 함
+      */
+
+      .overlay-title {
+        cursor: pointer;
+      }
+
+      .overlay-title::after {
+        content: "▾";
+        margin-left: auto;
+        color: var(--muted);
+      }
+
+      .overlay.collapsed {
+        max-height: 34px;
+        overflow: hidden;
+      }
+
+      .overlay.collapsed .overlay-title::after {
+        content: "▸";
+      }
+
+      .overlay.collapsed #formulaText,
+      .overlay.collapsed #physicsInfo {
+        display: none;
       }
 
       .mode-grid {
@@ -1176,8 +1249,8 @@
       ＋
     </button>
 
-    <button id="fitView" class="tool-button" type="button">
-      화면 맞춤
+    <button id="fitView" class="tool-button" type="button" title="화면 맞춤" aria-label="화면 맞춤">
+      ⛶
     </button>
 
   </div>
@@ -3987,6 +4060,44 @@ function animate(now) {
 
   draw();
 }
+
+
+/*
+  모바일에서 공식/실시간 물리량 오버레이
+  접고 펼치기
+
+  좁은 화면에서는 두 오버레이가 캔버스를 가리므로
+  기본은 접힌 상태로 시작하고, 제목 줄을 탭하면 펼쳐집니다.
+  (제목 줄 안의 "공식 설명" 버튼은 별도 동작이라 제외)
+*/
+
+document
+  .querySelectorAll(".overlay")
+  .forEach((overlayElement) => {
+
+    if (
+      window.matchMedia("(max-width: 700px)").matches
+    ) {
+
+      overlayElement.classList.add("collapsed");
+    }
+
+    overlayElement
+      .querySelector(".overlay-title")
+      .addEventListener(
+        "click",
+        (event) => {
+
+          if (event.target.closest("button")) {
+            return;
+          }
+
+          overlayElement
+            .classList
+            .toggle("collapsed");
+        }
+      );
+  });
 
 
 /*
