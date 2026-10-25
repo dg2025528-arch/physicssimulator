@@ -4031,7 +4031,22 @@ get("closeFormula")
   }
 );
 
+// 행성 설정을 바꾸면 기준 탈출 속력도 갱신
+planetGravityInput.addEventListener(
+  "input",
+  updateEscapeAnswerBox
+);
 
+planetRadiusInput.addEventListener(
+  "input",
+  updateEscapeAnswerBox
+);
+
+// 기존 자동 적용 체크박스 사용 중지
+if (useEscapeSpeedInput) {
+  useEscapeSpeedInput.checked = false;
+  useEscapeSpeedInput.disabled = true;
+}
 escapeViewSelect.addEventListener(
   "change",
   () => {
