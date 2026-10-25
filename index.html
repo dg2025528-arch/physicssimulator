@@ -1563,6 +1563,20 @@ E < 0  → 속박 궤도
         2 * surfaceGravity * planetRadius
       );
     }
+    function updateEscapeAnswerBox() {
+      const box = document.getElementById("escapeAnswerBox");
+      const value = document.getElementById("escapeAnswerValue");
+    
+      if (!box || !value) return;
+    
+      box.hidden = modeSelect.value !== "escape";
+    
+      value.textContent =
+        `${computeEscapeSpeed().toFixed(2)} m/s`;
+    
+      speedInput.disabled = false;
+      speedInput.readOnly = false;
+    }
 
 
     /*
