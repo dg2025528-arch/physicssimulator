@@ -2187,227 +2187,124 @@ E < 0  → 속박 궤도
     }
 
 
-    function resetSimulation(resetZoom = false) {
+function resetSimulation(resetZoom = false) {
+  running = false;
+  elapsed = 0;
+  trail = [];
 
-      running = false;
+  const mode = modeSelect.value;
 
-      elapsed = 0;
+  escapeInitialEnergy = null;
 
-      trail = [];
+  const speed = numberValue(speedInput);
+  const angle = numberValue(angleInput) * Math.PI / 180;
 
-      const mode =
-        modeSelect.value;
+  // 기본 초기 조건
+  x = -20;
+  y = 1;
 
-      if (mode !== "escape") {
-        escapeInitialEnergy = null;
-      }
+  velocityX = speed * Math.cos(angle);
+  velocityY = speed * Math.sin(angle);
 
-      const speed =
-        numberValue(speedInput);
+  accelerationX = numberValue(accelerationXInput);
 
-      const angle =
-        numberValue(angleInput) *
-        Math.PI / 180;
+  accelerationY =
+    numberValue(accelerationYInput) -
+    numberValue(gravitySelect, 9.8);
 
-      x = -20;
-      y = 1;
+  // 자유 낙하
+  if (mode === "freefall") {
+    x = 0;
+    y = numberValue(freefallHeightInput, 25);
 
-      velocityX =
-        speed * Math.cos(angle);
-
-      velocityY =
-        speed * Math.sin(angle);
-
-      accelerationX =
-        numberValue(
-          accelerationXInput
-        );
-
-            accelerationY =
-        numberValue(
-          accelerationYInput
-        ) -
-        numberValue(
-          gravitySelect,
-          9.8
-        );
-
-      // 여기부터 추가: 탈출 모드는 사용자 입력 속력으로 수평 발사
-      if (mode === "escape") {
-        const planetRadius = Math.max(
-          numberValue(planetRadiusInput, 35),
-          1
-        );
-
-        const initialSpeed = Math.max(
-          numberValue(speedInput, 0),
-          0
-        );
-
-        x = 0;
-        y = planetRadius;
-
-        velocityX = initialSpeed;
-        velocityY = 0;
-
-        angleInput.value = "0";
-        speedInput.disabled = false;
-        speedInput.readOnly = false;
-
-        if (useEscapeSpeedInput) {
-          useEscapeSpeedInput.checked = false;
-        }
-      }
-
-      /* 자유 낙하 */
-
-      if (mode === "freefall") {
-
-        x = 0;
-
-        y =
-          numberValue(
-            freefallHeightInput,
-            25
-          );
-
-        velocityX = 0;
-
-        velocityY =
-          -Math.abs(speed);
-      }
-
-
-      /* 마찰 운동 */
-
-      if (mode === "friction") {
-
-        x = -20;
-        y = 1;
-
-        velocityY = 0;
-
-        accelerationY = 0;
-      }
-
-
-      /* 원운동 */
-
-      if (mode === "circular") {
-
-        const radius =
-          Math.max(
-            numberValue(
-              radiusInput,
-              10
-            ),
-            1
-          );
-
-        circularAngle = 0;
-
-        x = radius;
-        y = 8;
-      }
-
-
-      /* 빗면 */
-
-      if (mode === "incline") {
-
-        inclineDistance = 0;
-
-        inclineVelocity = 0;
-
-        x = 0;
-        y = 0;
-      }
-
-
-      /*
-        탈출 속도
-
-        여기서 체크박스가 켜져 있으면
-        자동으로 v_escape를 넣습니다.
-
-        체크박스를 끄면 사용자가 입력한
-        속도를 그대로 사용합니다.
-      */
-
-    if (mode === "escape") {
-  const planetRadius = Math.max(
-    numberValue(planetRadiusInput, 35),
-    1
-  );
-
-  // 행성 꼭대기에서 출발
-  x = 0;
-  y = planetRadius;
-
-  // 탈출 속도로 자동 변경하지 않고 사용자 입력값 사용
-  const currentSpeed = Math.max(
-    numberValue(speedInput, 0),
-    0
-  );
-
-  // 수평 방향(오른쪽)으로 발사
-  velocityX = currentSpeed;
-  velocityY = 0;
-
-  // 입력 화면도 실제 설정과 일치시킴
-  angleInput.value = "0";
-  speedInput.disabled = false;
-
-  if (useEscapeSpeedInput) {
-    useEscapeSpeedInput.checked = false;
+    velocityX = 0;
+    velocityY = -Math.abs(speed);
   }
+
+  // 마찰 운동
+  if (mode === "friction") {
+    x = -20;
+    y = 1;
+
+    velocityY = 0;
+    accelerationY = 0;
+  }
+
+  // 원운동
+  if (mode === "circular") {
+    const radius = Math.max(
+      numberValue(radiusInput, 10),
+      1
+    );
+
+    circularAngle = 0;
+
+    x = radius;
+    y = 8;
+  }
+
+  // 빗면
+  if (mode === "incline") {
+    inclineDistance = 0;
+    inclineVelocity = 0;
+
+    x = 0;
+    y = 0;
+  }
+
+  // 탈출 모드: 사용자 입력 속력으로 수평 발사
+  if (mode === "escape") {
+    const planetRadius = Math.max(
+      numberValue(planetRadiusInput, 35),
+      1
+    );
+
+    const initialSpeed = Math.max(
+      numberValue(speedInput, 0),
+      0
+    );
+
+    x = 0;
+    y = planetRadius;
+
+    velocityX = initialSpeed;
+    velocityY = 0;
+
+    angleInput.value = "0";
+    speedInput.disabled = false;
+    speedInput.readOnly = false;
+
+    if (useEscapeSpeedInput) {
+      useEscapeSpeedInput.checked = false;
+      useEscapeSpeedInput.disabled = true;
+    }
+
+    // 기존 코드와의 호환을 위해 초기 에너지 저장
+    escapeInitialEnergy = computeEscapeMechanicalEnergy();
+
+    message.textContent =
+      `초기 속력 ${initialSpeed.toFixed(2)} m/s · 수평 발사 준비`;
+  }
+
+  // 확대/축소 초기화
+  if (resetZoom) {
+    setZoom(
+      mode === "escape"
+        ? autoFitEscapeZoom()
+        : 1
+    );
+  }
+
+  playPauseButton.textContent = "▶ 재생";
+
+  // 기준 탈출 속력 상자 갱신
+  if (typeof updateEscapeAnswerBox === "function") {
+    updateEscapeAnswerBox();
+  }
+
+  updatePhysicsInfo();
+  draw();
 }
-        /*
-          초기 에너지에 따른 상태 표시
-        */
-
-        escapeInitialEnergy =
-          computeEscapeMechanicalEnergy();
-
-        const energy =
-          escapeInitialEnergy;
-
-        if (energy > ENERGY_EPSILON) {
-
-          message.textContent =
-            "E > 0 : 물체가 탈출합니다.";
-
-        } else if (
-          energy < -ENERGY_EPSILON
-        ) {
-
-          message.textContent =
-            "E < 0 : 물체가 다시 행성으로 떨어집니다.";
-
-        } else {
-
-          message.textContent =
-            "E ≈ 0 : 최소 탈출 조건입니다.";
-        }
-      }
-
-
-      if (resetZoom) {
-
-        setZoom(
-          mode === "escape"
-            ? autoFitEscapeZoom()
-            : 1
-        );
-        
-
-      playPauseButton.textContent =
-        "▶ 재생";
-
-      updatePhysicsInfo();
-
-      draw();
-      }
 
 
     function update(deltaTime) {
