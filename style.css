@@ -1197,3 +1197,28 @@ body.modal-open {
     display: none !important;
   }
 }
+
+.escape-answer-box {
+  background: #fff7d6;
+  color: #292515;
+  border: 2px solid #e6c75a;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.escape-answer-box[hidden] {
+  display: none;
+}
+
+#escapeAnswerValue {
+  font-size: 26px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.escape-answer-box p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
