@@ -2272,52 +2272,34 @@ E < 0  → 속박 궤도
         속도를 그대로 사용합니다.
       */
 
-      if (mode === "escape") {
+    if (mode === "escape") {
+  const planetRadius = Math.max(
+    numberValue(planetRadiusInput, 35),
+    1
+  );
 
-        const planetRadius =
-          Math.max(
-            numberValue(
-              planetRadiusInput,
-              35
-            ),
-            1
-          );
+  // 행성 꼭대기에서 출발
+  x = 0;
+  y = planetRadius;
 
-        x = 0;
-        y = planetRadius;
+  // 탈출 속도로 자동 변경하지 않고 사용자 입력값 사용
+  const currentSpeed = Math.max(
+    numberValue(speedInput, 0),
+    0
+  );
 
-        const escapeSpeed =
-          computeEscapeSpeed();
+  // 수평 방향(오른쪽)으로 발사
+  velocityX = currentSpeed;
+  velocityY = 0;
 
-        if (
-          useEscapeSpeedInput.checked
-        ) {
+  // 입력 화면도 실제 설정과 일치시킴
+  angleInput.value = "0";
+  speedInput.disabled = false;
 
-          speedInput.value =
-            escapeSpeed.toFixed(2);
-        }
-
-        const currentSpeed =
-          numberValue(
-            speedInput,
-            escapeSpeed
-          );
-
-        const launchAngle =
-          numberValue(
-            angleInput,
-            90
-          ) *
-          Math.PI / 180;
-
-        velocityX =
-          currentSpeed *
-          Math.cos(launchAngle);
-
-        velocityY =
-          currentSpeed *
-          Math.sin(launchAngle);
-
+  if (useEscapeSpeedInput) {
+    useEscapeSpeedInput.checked = false;
+  }
+}
         /*
           초기 에너지에 따른 상태 표시
         */
