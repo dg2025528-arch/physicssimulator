@@ -1294,24 +1294,24 @@ function resetSimulation(resetZoom = false) {
   accelerationY = numberValue(accelerationYInput) - numberValue(gravitySelect, 9.8);
 
  /* 탈출 모드: 행성 꼭대기에서 수평 방향으로 발사 */
-if (mode === "escape") {
-  const { R } = getEscapeParams();
+ if (mode === "escape") {
+   const { R } = getEscapeParams();
 
-  x = 0;
-  y = R;
+   x = 0;
+   y = R;
 
-  // 발사각 UI도 수평(0°)으로 맞춤
-  angleInput.value = "0";
+   // 발사각 UI도 수평(0°)으로 맞춤
+   angleInput.value = "0";
 
-  let launchSpeed = numberValue(speedInput);
-  if (useEscapeSpeedInput.checked) {
-    launchSpeed = computeEscapeSpeed();
-    speedInput.value = launchSpeed.toFixed(2);
-  }
+   let launchSpeed = numberValue(speedInput);
+   if (useEscapeSpeedInput.checked) {
+     launchSpeed = computeEscapeSpeed();
+     speedInput.value = launchSpeed.toFixed(2);
+   }
 
-  velocityX = launchSpeed; // 오른쪽으로 발사
-  velocityY = 0;           // 초기 연직 속도 없음
-}
+   velocityX = launchSpeed; // 오른쪽으로 발사
+   velocityY = 0;           // 초기 연직 속도 없음
+ }
 
   /* ↓↓↓ 여기부터는 원래 코드의 나머지 부분을 그대로 이어 붙이세요
      (원운동/빗면 초기화, zoom 설정, updateCamera, updateEnergyStatus 등)
