@@ -2223,7 +2223,7 @@ E < 0  → 속박 궤도
           accelerationXInput
         );
 
-      accelerationY =
+            accelerationY =
         numberValue(
           accelerationYInput
         ) -
@@ -2232,6 +2232,32 @@ E < 0  → 속박 궤도
           9.8
         );
 
+      // 여기부터 추가: 탈출 모드는 사용자 입력 속력으로 수평 발사
+      if (mode === "escape") {
+        const planetRadius = Math.max(
+          numberValue(planetRadiusInput, 35),
+          1
+        );
+
+        const initialSpeed = Math.max(
+          numberValue(speedInput, 0),
+          0
+        );
+
+        x = 0;
+        y = planetRadius;
+
+        velocityX = initialSpeed;
+        velocityY = 0;
+
+        angleInput.value = "0";
+        speedInput.disabled = false;
+        speedInput.readOnly = false;
+
+        if (useEscapeSpeedInput) {
+          useEscapeSpeedInput.checked = false;
+        }
+      }
 
       /* 자유 낙하 */
 
