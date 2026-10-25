@@ -950,9 +950,19 @@ index.html
   <!-- 초기 조건 -->
   <section class="control-card">
     <h3>초기 조건</h3>
-
+  
+    <!-- 추가: 기준 탈출 속력 표시 -->
+    <div id="escapeAnswerBox" class="escape-answer-box" hidden>
+      <strong>기준 탈출 속력</strong>
+      <div id="escapeAnswerValue"></div>
+      <p>
+        추가 힘이 없을 때의 기준값입니다.<br>
+        아래 초기 속력을 직접 바꿔 결과를 비교해 보세요.
+      </p>
+    </div>
+  
     <div class="two-columns">
-
+  
       <label>
         초기 속력 v₀
         <div class="input-unit">
@@ -960,6 +970,15 @@ index.html
           <span>m·s⁻¹</span>
         </div>
       </label>
+
+      <div id="escapeAnswerBox" class="escape-answer-box" hidden>
+  <strong>기준 탈출 속력</strong>
+  <div id="escapeAnswerValue"></div>
+  <p>
+    추가 힘이 없을 때의 기준값입니다.<br>
+    초기 속력을 직접 입력하고 결과를 비교해 보세요.
+  </p>
+</div>
 
       <label>
         질량 m
